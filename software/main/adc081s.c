@@ -50,7 +50,12 @@ esp_err_t adc081s_get_val(uint16_t *val){
         return ESP_FAIL;
     }
     
-    *val = (receive_data[0]<<4) | (receive_data[1]>>4) ;
+
+    //change the bit shift values if a genuine part is used, according to the datasheet
+    *val = (receive_data[0]<<4) | (receive_data[1]>>4);
+
+    
+
     return ESP_OK;
 }
 
