@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "logo")(type "KiCad")(uri "C:/Users/dartcom/Documents/KiCad/6.0/projects/_hot_plate/esp32_hotplate_digital")(options "")(descr ""))
+)
