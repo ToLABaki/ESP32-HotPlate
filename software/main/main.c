@@ -68,7 +68,7 @@ static const char *TAG = "example";
 
 
 void init_gpio(){
-    gpio_config_t io_conf_out = {}; gpio_config_t io_conf_in = {};
+    gpio_config_t io_conf_out = {}; gpio_config_t io_conf_in = {}; gpio_config_t io_conf_extra = {};
     io_conf_out.intr_type = GPIO_INTR_DISABLE;
     io_conf_out.mode = GPIO_MODE_OUTPUT;
     io_conf_out.pin_bit_mask = (1ULL<<STATUS_PIN) | (1ULL<<HEATER_PIN) | (1ULL<<FAN_PIN) | (1ULL<<BUZZER_PIN);
@@ -82,6 +82,15 @@ void init_gpio(){
     io_conf_in.pull_down_en = 1;
     io_conf_in.pull_up_en = 0;
     gpio_config(&io_conf_in);
+
+    io_conf_extra.intr_type = GPIO_INTR_DISABLE;
+    io_conf_extra.mode = GPIO_MODE_OUTPUT;
+    io_conf_extra.pin_bit_mask = (1ULL<<HSPI_MISO) | (1ULL<<HSPI_CLK) | (1ULL<<HSPI_MOSI) | (1ULL<<GPIO_NUM_4);
+    io_conf_extra.pull_down_en = 0;
+    io_conf_extra.pull_up_en = 1;
+    gpio_config(&io_conf_extra);
+
+   
 }
 
 bool get_buttons(lv_indev_drv_t *drv, lv_indev_data_t *data){
@@ -150,11 +159,27 @@ spi_bus_config_t buscfg={
     .miso_io_num=HSPI_MISO,
     .sclk_io_num=HSPI_CLK,
     .mosi_io_num=HSPI_MOSI,
+    .quadwp_io_num = -1,
+    .quadhd_io_num = -1,
+    .max_transfer_sz = 4000,
 };
 
 
 esp_err_t spi_init(){
     esp_err_t ret = ESP_OK;
+    ret = spi_bus_initialize(HSPI_HOST, &buscfg, SPI_DMA_CH2);
+    if(ret != ESP_OK){
+        printf("SPI ERR\n");
+        
+    }
+    return ret;
+}
+
+esp_err_t spi_reinit(){
+    esp_err_t ret = ESP_OK;
+    
+    spi_bus_free(HSPI_HOST);
+    
     ret = spi_bus_initialize(HSPI_HOST, &buscfg, SPI_DMA_DISABLED);
     if(ret != ESP_OK){
         printf("SPI ERR\n");
@@ -171,8 +196,63 @@ void app_main() {
     spi_init();
     
     sd_init();
+    #define MOUNT_POINT "/sdcard"
+    // First create a file.
+    const char *file_hello = MOUNT_POINT"/hello.txt";
+
+    ESP_LOGI(TAG, "Opening file %s", file_hello);
+    FILE *f = fopen(file_hello, "w");
+    if (f == NULL) {
+        ESP_LOGE(TAG, "Failed to open file for writing");
+        return;
+    }
+    fprintf(f, "Hello \n");
+    fclose(f);
+    ESP_LOGI(TAG, "File written");
+
+    const char *file_foo = MOUNT_POINT"/foo.txt";
+
+    // Check if destination file exists before renaming
+    struct stat st;
+    if (stat(file_foo, &st) == 0) {
+        // Delete it if it exists
+        unlink(file_foo);
+    }
+
+    // Rename original file
+    ESP_LOGI(TAG, "Renaming file %s to %s", file_hello, file_foo);
+    if (rename(file_hello, file_foo) != 0) {
+        ESP_LOGE(TAG, "Rename failed");
+        return;
+    }
+
+    // Open renamed file for reading
+    ESP_LOGI(TAG, "Reading file %s", file_foo);
+    f = fopen(file_foo, "r");
+    if (f == NULL) {
+        ESP_LOGE(TAG, "Failed to open file for reading");
+        return;
+    }
+
+    // Read a line from file
+    char line[64];
+    fgets(line, sizeof(line), f);
+    fclose(f);
+
+    // Strip newline
+    char *pos = strchr(line, '\n');
+    if (pos) {
+        *pos = '\0';
+    }
+    ESP_LOGI(TAG, "Read from file: '%s'", line);
+
+
+    sd_deinit();
+
+    spi_reinit();
     adc081s_init();
-    
+
+vTaskDelay(pdMS_TO_TICKS(100));    
     xGuiSemaphore = xSemaphoreCreateMutex();
 
     xTaskCreatePinnedToCore(blink, "blink", 4096*2, NULL, tskIDLE_PRIORITY, NULL,0);

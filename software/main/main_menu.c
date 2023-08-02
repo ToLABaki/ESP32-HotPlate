@@ -143,7 +143,7 @@ void _main_menu(enum states* state){
             }
             sprintf(string_buffer, "%.1f °c",  mv_to_temp_EPCOS_100K_B57560G104F(adc081s_val_to_mv(temp_val)));
             lv_label_set_text(main_menu_item2_content, string_buffer);
-            //printf("%d\n",temp_val );
+                //printf("%s\n",string_buffer );
         }else{
             sprintf(string_buffer, "ADC ERROR");
         }

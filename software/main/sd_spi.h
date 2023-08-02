@@ -28,6 +28,8 @@
 
 esp_err_t sd_init();
 
+esp_err_t sd_deinit();
+
 
 
 #endif

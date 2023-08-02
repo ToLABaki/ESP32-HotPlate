@@ -16,7 +16,8 @@
         "lvgl_helpers.h": "c",
         "defines.h": "c",
         "sd_spi.h": "c",
-        "esp_freertos_hooks.h": "c"
+        "esp_freertos_hooks.h": "c",
+        "*.ipp": "c"
     },
 
 }
