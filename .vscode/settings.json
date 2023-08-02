@@ -1,0 +1,22 @@
+{
+    "files.associations": {
+        "random": "c",
+        "disp_spi.h": "c",
+        "stdbool.h": "c",
+        "lvgl.h": "c",
+        "esp_types.h": "c",
+        "lv_log.h": "c",
+        "lv_conf_internal.h": "c",
+        "lv_font.h": "c",
+        "styles.h": "c",
+        "list": "c",
+        "stdio.h": "c",
+        "gpio.h": "c",
+        "esp_bit_defs.h": "c",
+        "lvgl_helpers.h": "c",
+        "defines.h": "c",
+        "sd_spi.h": "c",
+        "esp_freertos_hooks.h": "c"
+    },
+
+}

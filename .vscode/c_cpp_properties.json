@@ -1,0 +1,44 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "D:/Espressif/frameworks/esp-idf-v4.4.4/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "D:\\MinGW\\bin\\gcc.exe",
+            "cStandard": "c11",
+            "cppStandard": "gnu++14",
+            "intelliSenseMode": "windows-gcc-x86"
+        },
+        {
+            "name": "esp32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "D:\\Espressif\\frameworks\\esp-idf-v4.4.4/**",
+                "D:\\Espressif\\frameworks\\esp-idf-v4.4.4\\components/**",
+                "D:\\Espressif\\frameworks\\esp-idf-v4.4.4\\components\\driver/**",
+                "D:\\Espressif\\projects\\esp32_HotPlate\\components/**",
+                "D:\\Espressif\\projects\\esp32_HotPlate\\components\\lvgl/**",
+                "D:\\Espressif\\projects\\esp32_HotPlate\\components\\lvgl\\src/**",
+                "D:\\Espressif\\frameworks\\esp-idf-v4.4.4\\components\\driver\\include\\driver/**",
+                "D:\\Espressif\\projects\\esp32_HotPlate\\components\\lvgl"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "D:\\Espressif\\tools\\xtensa-esp32-elf\\esp-2021r2-patch5-8.4.0\\xtensa-esp32-elf\\bin\\xtensa-esp32-elf-gcc.exe",
+            "cStandard": "c11",
+            "cppStandard": "gnu++14",
+            "intelliSenseMode": "windows-gcc-x86"
+        }
+    ],
+    "version": 4
+}

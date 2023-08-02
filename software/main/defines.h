@@ -24,6 +24,8 @@
 #include "esp_timer.h"
 
 
+
+
 /* Littlevgl specific */
 #ifdef LV_LVGL_H_INCLUDE_SIMPLE
 #include "lvgl.h"
@@ -41,10 +43,14 @@
 #define HEATER_PIN      GPIO_NUM_27
 #define FAN_PIN         GPIO_NUM_33
 
-#define BUZZER_PIN      GPIO_NUM_36
+#define BUZZER_PIN      GPIO_NUM_22
 #define UP_PIN          GPIO_NUM_35
 #define DOWN_PIN        GPIO_NUM_32
 #define SELECT_PIN      GPIO_NUM_34
+
+#define HSPI_MISO   GPIO_NUM_12
+#define HSPI_CLK    GPIO_NUM_14
+#define HSPI_MOSI    GPIO_NUM_13
 
 #define ADC_SAMPLES_AVG_ARRAY_SIZE 20
 

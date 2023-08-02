@@ -1,5 +1,5 @@
-#ifndef ADC081S_H
-#define ADC081S_H
+#ifndef SD_SPI_H
+#define SD_SPI_H
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -17,19 +17,16 @@
 #include "esp_log.h"
 #include "esp_spiffs.h"
 #include "driver/spi_master.h"
+#include "driver/sdspi_host.h"
+#include "esp_vfs_fat.h"
+
+
 
 #include "defines.h"
 
+#define SD_CS GPIO_NUM_4
 
-
-#define ADC1_CS     16
-#define ADC2_CS     17
-
-esp_err_t adc081s_init();
-
-esp_err_t adc081s_get_val(uint16_t *val);
-
-uint16_t adc081s_val_to_mv(uint16_t val);
+esp_err_t sd_init();
 
 
 

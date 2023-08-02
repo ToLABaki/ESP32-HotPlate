@@ -3,31 +3,35 @@
 
 spi_device_handle_t handle;
 
-spi_bus_config_t buscfg={
-    .miso_io_num=HSPI_MISO,
-    .sclk_io_num=HSPI_CLK,
+
+
+spi_device_interface_config_t adc_cfg1={
+    .command_bits       = 0,
+    .address_bits       = 0,
+    .dummy_bits         = 0,
+    .clock_speed_hz     = 1000000,
+    .duty_cycle_pos     = 128,        //50% duty cycle
+    .mode               = 2,
+    .spics_io_num       = ADC1_CS,
+    .cs_ena_posttrans   = 1,        //Keep the CS low 3 cycles after transaction, to stop slave from missing the last bit when CS has less propagation delay than CLK
+    .queue_size         = 1
 };
 
-spi_device_interface_config_t devcfg={
-        .command_bits       = 0,
-        .address_bits       = 0,
-        .dummy_bits         = 0,
-        .clock_speed_hz     = 1000000,
-        .duty_cycle_pos     = 128,        //50% duty cycle
-        .mode               = 2,
-        .spics_io_num       = HSPI_CS,
-        .cs_ena_posttrans   = 1,        //Keep the CS low 3 cycles after transaction, to stop slave from missing the last bit when CS has less propagation delay than CLK
-        .queue_size         = 1
-    };
+spi_device_interface_config_t adc_cfg2={
+    .command_bits       = 0,
+    .address_bits       = 0,
+    .dummy_bits         = 0,
+    .clock_speed_hz     = 1000000,
+    .duty_cycle_pos     = 128,        //50% duty cycle
+    .mode               = 2,
+    .spics_io_num       = ADC2_CS,
+    .cs_ena_posttrans   = 1,        //Keep the CS low 3 cycles after transaction, to stop slave from missing the last bit when CS has less propagation delay than CLK
+    .queue_size         = 1
+};
 
 esp_err_t adc081s_init(){
     esp_err_t ret = ESP_OK;
-    ret = spi_bus_initialize(HSPI_HOST, &buscfg, SPI_DMA_DISABLED);
-    if(ret != ESP_OK){
-        printf("SPI ERR\n");
-        return ret;
-    }
-    ret = spi_bus_add_device(HSPI_HOST, &devcfg, &handle);
+    ret = spi_bus_add_device(HSPI_HOST, &adc_cfg1, &handle);
     if(ret != ESP_OK){
         printf("SPI ERR\n");
         return ret;
