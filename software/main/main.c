@@ -62,6 +62,7 @@ static void lv_tick_task(void *arg);
 static void guiTask(void *pvParameter);
 static void menuLogicTask(void *pvParameter);
 static void blink(void *pvParameter);
+static void bz(void *pvParameter);
 
 static const char *TAG = "example";
 
@@ -79,7 +80,7 @@ void init_gpio(){
     io_conf_in.intr_type = GPIO_INTR_DISABLE;
     io_conf_in.mode = GPIO_MODE_INPUT;
     io_conf_in.pin_bit_mask = (1ULL<<UP_PIN) | (1ULL<<DOWN_PIN) | (1ULL<<SELECT_PIN);
-    io_conf_in.pull_down_en = 1;
+    //io_conf_in.pull_down_en = 1;
     io_conf_in.pull_up_en = 0;
     gpio_config(&io_conf_in);
 
@@ -252,10 +253,11 @@ void app_main() {
     spi_reinit();
     adc081s_init();
 
-vTaskDelay(pdMS_TO_TICKS(100));    
+    vTaskDelay(pdMS_TO_TICKS(100));    
     xGuiSemaphore = xSemaphoreCreateMutex();
 
     xTaskCreatePinnedToCore(blink, "blink", 4096*2, NULL, tskIDLE_PRIORITY, NULL,0);
+    xTaskCreatePinnedToCore(bz, "bz", 4096*2, NULL, tskIDLE_PRIORITY, NULL,0);
     xTaskCreatePinnedToCore(guiTask, "gui", 4096*2, NULL, 0, NULL, 1);
     xTaskCreatePinnedToCore(menuLogicTask, "menuLogic", 4096*2, NULL, tskIDLE_PRIORITY, NULL,0);
    
@@ -401,6 +403,17 @@ static void blink(void *pvParameter){
         vTaskDelay(pdMS_TO_TICKS(100));
         gpio_set_level(STATUS_PIN, 0);
         vTaskDelay(pdMS_TO_TICKS(100));
+    }
+    vTaskDelete(NULL);
+}
+
+static void bz(void *pvParameter){
+    while(1){
+        //printf("TOGGLE\n");
+        gpio_set_level(BUZZER_PIN, 1);
+        vTaskDelay(pdMS_TO_TICKS(10));
+        gpio_set_level(BUZZER_PIN, 0);
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
     vTaskDelete(NULL);
 }

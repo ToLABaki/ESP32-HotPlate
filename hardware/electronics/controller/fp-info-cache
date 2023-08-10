@@ -1,4 +1,4 @@
-21616611159898873
+21620006408864486
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -83090,9 +83090,16 @@ Integrated Circuit
 8
 8
 SamacSys_Parts
-SOT95P280X145-5N
-SOT23-5LD-PL-1_2022
+SOT65P280X100-8N
+TSOT23-8
 Integrated Circuit
+0
+8
+8
+SamacSys_Parts
+SOT95P280X145-5N
+DBV0005A
+Filter
 0
 5
 5
@@ -90264,6 +90271,13 @@ varistor
 0
 2
 2
+components
+TF-SMD_TF-PUSH
+
+
+0
+15
+13
 logo
 labaki_logo
 
