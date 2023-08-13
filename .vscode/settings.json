@@ -17,7 +17,8 @@
         "defines.h": "c",
         "sd_spi.h": "c",
         "esp_freertos_hooks.h": "c",
-        "*.ipp": "c"
+        "*.ipp": "c",
+        "esp_timer.h": "c"
     },
 
 }

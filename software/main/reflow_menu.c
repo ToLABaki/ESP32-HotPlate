@@ -72,7 +72,7 @@ void draw_graph(lv_obj_t * chart, lv_obj_t * line, struct reflow_profile *profil
     lv_obj_set_pos(chart, 0,TOP_BAR_HEIGHT); 
     lv_obj_add_style(chart , LV_STATE_DEFAULT,&style_no_borders);
     //lv_obj_set_style_local_bg_color(chart,LV_OBJ_PART_MAIN,LV_STATE_DEFAULT,LV_COLOR_AQUA);
-    uint32_t total_reflow_time = profile->preheat.time + profile->soak.time + profile->reflow_ramp.time + profile->reflow.time + profile->cooldown.time;
+    uint32_t total_reflow_time = profile->phase[preheat].time + profile->phase[soak].time + profile->phase[reflow_ramp].time + profile->phase[reflow].time + profile->phase[cooldown].time;
     uint32_t div_lines = (total_reflow_time / CHART_DIV_X) - 1;
     if((total_reflow_time % CHART_DIV_X) != 0){
         div_lines++;
@@ -93,17 +93,17 @@ void draw_graph(lv_obj_t * chart, lv_obj_t * line, struct reflow_profile *profil
 
 
     line_points[0].x = CHART_OFFSET_X;
-    line_points[0].y = CHART_OFFSET_Y + ((float)(profile->preheat.start_temp) * scaler_y); 
-    line_points[1].x = CHART_OFFSET_X + (profile->preheat.time * scaler_x);
-    line_points[1].y = CHART_OFFSET_Y + ((float)(profile->preheat.finish_temp) * scaler_y);
-    line_points[2].x = CHART_OFFSET_X + ((profile->preheat.time + profile->soak.time) * scaler_x);
-    line_points[2].y = CHART_OFFSET_Y + ((float)(profile->soak.finish_temp) * scaler_y);
-    line_points[3].x = CHART_OFFSET_X + ((profile->preheat.time + profile->soak.time + profile->reflow_ramp.time) * scaler_x);
-    line_points[3].y = CHART_OFFSET_Y + ((float)(profile->reflow_ramp.finish_temp) * scaler_y);
-    line_points[4].x = CHART_OFFSET_X + ((profile->preheat.time + profile->soak.time + profile->reflow_ramp.time + profile->reflow.time) * scaler_x);
-    line_points[4].y = CHART_OFFSET_Y + ((float)(profile->reflow.finish_temp) * scaler_y); 
-    line_points[5].x = CHART_OFFSET_X + ((profile->preheat.time + profile->soak.time + profile->reflow_ramp.time + profile->reflow.time + profile->cooldown.time) * scaler_x);
-    line_points[5].y = CHART_OFFSET_Y + ((float)(profile->cooldown.finish_temp) * scaler_y);
+    line_points[0].y = CHART_OFFSET_Y + ((float)(profile->phase[preheat].start_temp) * scaler_y); 
+    line_points[1].x = CHART_OFFSET_X + (profile->phase[preheat].time * scaler_x);
+    line_points[1].y = CHART_OFFSET_Y + ((float)(profile->phase[preheat].finish_temp) * scaler_y);
+    line_points[2].x = CHART_OFFSET_X + ((profile->phase[preheat].time + profile->phase[soak].time) * scaler_x);
+    line_points[2].y = CHART_OFFSET_Y + ((float)(profile->phase[soak].finish_temp) * scaler_y);
+    line_points[3].x = CHART_OFFSET_X + ((profile->phase[preheat].time + profile->phase[soak].time + profile->phase[reflow_ramp].time) * scaler_x);
+    line_points[3].y = CHART_OFFSET_Y + ((float)(profile->phase[reflow_ramp].finish_temp) * scaler_y);
+    line_points[4].x = CHART_OFFSET_X + ((profile->phase[preheat].time + profile->phase[soak].time + profile->phase[reflow_ramp].time + profile->phase[reflow].time) * scaler_x);
+    line_points[4].y = CHART_OFFSET_Y + ((float)(profile->phase[reflow].finish_temp) * scaler_y); 
+    line_points[5].x = CHART_OFFSET_X + ((profile->phase[preheat].time + profile->phase[soak].time + profile->phase[reflow_ramp].time + profile->phase[reflow].time + profile->phase[cooldown].time) * scaler_x);
+    line_points[5].y = CHART_OFFSET_Y + ((float)(profile->phase[cooldown].finish_temp) * scaler_y);
     
     lv_line_set_points(line, line_points, 6);
     lv_obj_add_style(line, LV_LINE_PART_MAIN, &style_reflow_chart_line);
@@ -146,7 +146,7 @@ void update_graph(lv_obj_t * line){
 float calculate_target_temp(uint32_t current_ms, struct reflow_profile *profile){
     uint32_t i;
     
-    struct reflow_phase *phases[5] = {&(profile->preheat), &(profile->soak), &(profile->reflow_ramp), &(profile->reflow), &(profile->cooldown)};
+    struct reflow_phase *phases[5] = {&(profile->phase[preheat]), &(profile->phase[soak]), &(profile->phase[reflow_ramp]), &(profile->phase[reflow]), &(profile->phase[cooldown])};
     uint32_t time_high = 0;
     uint32_t time_low = 0;
     float ret;
@@ -324,16 +324,15 @@ void _reflow_menu(enum states* state){
     printf("    Profile:%s\n",reflow_selected_params->profile->label);
     printf("    Sensor:%d\n",reflow_selected_params->sensor);
 
-    total_time_ms = (reflow_selected_params->profile->preheat.time +
-                    reflow_selected_params->profile->soak.time +
-                    reflow_selected_params->profile->reflow_ramp.time +
-                    reflow_selected_params->profile->reflow.time +
-                    reflow_selected_params->profile->cooldown.time)*1000;
+    total_time_ms = (reflow_selected_params->profile->phase[preheat].time +
+                    reflow_selected_params->profile->phase[soak].time +
+                    reflow_selected_params->profile->phase[reflow_ramp].time +
+                    reflow_selected_params->profile->phase[reflow].time +
+                    reflow_selected_params->profile->phase[cooldown].time)*1000;
     elapsed_time_ms = 0;
 
 
-    //wait for LVGL setup to finish
-    while(LVGL_SETUP_COMPLETE == 0);
+
     
 
     //draw the screen

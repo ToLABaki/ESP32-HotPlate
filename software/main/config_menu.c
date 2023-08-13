@@ -82,8 +82,7 @@ void _config_menu(enum states* state){
     volatile uint8_t LOCK = 1;
     lv_indev_data_t button_data;
 
-    //wait for LVGL setup to finish
-    while(LVGL_SETUP_COMPLETE == 0);
+   
 
     //setup the screen
     GUI_SEMAPHORE_WAIT

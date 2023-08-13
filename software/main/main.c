@@ -48,6 +48,7 @@
 
 
 
+
 volatile uint32_t BTN_UP_SCORE       = 0x00;
 volatile uint32_t BTN_UP_EVENT       = 0x00;
 volatile uint32_t BTN_DOWN_SCORE     = 0x00;
@@ -61,12 +62,14 @@ volatile uint32_t BTN_SELECT_EVENT   = 0x00;
 static void lv_tick_task(void *arg);
 static void guiTask(void *pvParameter);
 static void menuLogicTask(void *pvParameter);
-static void blink(void *pvParameter);
-static void bz(void *pvParameter);
-
-static const char *TAG = "example";
 
 
+
+enum init_state_{sd_found, sd_not_found, other_error};
+enum init_state_ init_state = error;
+
+volatile u_int32_t init_status = 0;
+SemaphoreHandle_t init_semaphore;
 
 void init_gpio(){
     gpio_config_t io_conf_out = {}; gpio_config_t io_conf_in = {}; gpio_config_t io_conf_extra = {};
@@ -76,6 +79,8 @@ void init_gpio(){
     io_conf_out.pull_down_en = 1;
     io_conf_out.pull_up_en = 0;
     gpio_config(&io_conf_out);
+
+    gpio_set_level(BUZZER_PIN, 0);
 
     io_conf_in.intr_type = GPIO_INTR_DISABLE;
     io_conf_in.mode = GPIO_MODE_INPUT;
@@ -91,7 +96,7 @@ void init_gpio(){
     io_conf_extra.pull_up_en = 1;
     gpio_config(&io_conf_extra);
 
-   
+  
 }
 
 bool get_buttons(lv_indev_drv_t *drv, lv_indev_data_t *data){
@@ -171,7 +176,6 @@ esp_err_t spi_init(){
     ret = spi_bus_initialize(HSPI_HOST, &buscfg, SPI_DMA_CH2);
     if(ret != ESP_OK){
         printf("SPI ERR\n");
-        
     }
     return ret;
 }
@@ -191,76 +195,42 @@ esp_err_t spi_reinit(){
 
 
 void app_main() {
+    esp_err_t ret = ESP_OK;
     init_gpio();
-    init_data();
-    adc_init();
-    spi_init();
     
-    sd_init();
-    #define MOUNT_POINT "/sdcard"
-    // First create a file.
-    const char *file_hello = MOUNT_POINT"/hello.txt";
+    spi_init();
+    init_semaphore = xSemaphoreCreateMutex();
+    xGuiSemaphore = xSemaphoreCreateMutex();
+    xTaskCreatePinnedToCore(guiTask, "gui", 4096*2, NULL, 0, NULL, 1);
+    xTaskCreatePinnedToCore(menuLogicTask, "menuLogic", 4096*2, NULL, tskIDLE_PRIORITY, NULL,0);
+    spi_init();
+    ret = sd_init();
+    if(ret == ESP_OK){
+        if(init_sdcard_data() == ESP_OK){
+            init_data();
+            init_state = sd_found;
+            printf("SD FOUND\n");
+        }else{
 
-    ESP_LOGI(TAG, "Opening file %s", file_hello);
-    FILE *f = fopen(file_hello, "w");
-    if (f == NULL) {
-        ESP_LOGE(TAG, "Failed to open file for writing");
-        return;
+            init_data_generic();
+            init_data();
+            init_state = sd_not_found;
+            printf("SD NOT FOUND\n");
+        }
+        sd_deinit();
+    }else{
+        init_data_generic();
+        init_data();
+        init_state = sd_not_found;
+        printf("SD NOT FOUND\n");
     }
-    fprintf(f, "Hello \n");
-    fclose(f);
-    ESP_LOGI(TAG, "File written");
-
-    const char *file_foo = MOUNT_POINT"/foo.txt";
-
-    // Check if destination file exists before renaming
-    struct stat st;
-    if (stat(file_foo, &st) == 0) {
-        // Delete it if it exists
-        unlink(file_foo);
-    }
-
-    // Rename original file
-    ESP_LOGI(TAG, "Renaming file %s to %s", file_hello, file_foo);
-    if (rename(file_hello, file_foo) != 0) {
-        ESP_LOGE(TAG, "Rename failed");
-        return;
-    }
-
-    // Open renamed file for reading
-    ESP_LOGI(TAG, "Reading file %s", file_foo);
-    f = fopen(file_foo, "r");
-    if (f == NULL) {
-        ESP_LOGE(TAG, "Failed to open file for reading");
-        return;
-    }
-
-    // Read a line from file
-    char line[64];
-    fgets(line, sizeof(line), f);
-    fclose(f);
-
-    // Strip newline
-    char *pos = strchr(line, '\n');
-    if (pos) {
-        *pos = '\0';
-    }
-    ESP_LOGI(TAG, "Read from file: '%s'", line);
-
-
-    sd_deinit();
+    
 
     spi_reinit();
     adc081s_init();
-
-    vTaskDelay(pdMS_TO_TICKS(100));    
-    xGuiSemaphore = xSemaphoreCreateMutex();
-
-    xTaskCreatePinnedToCore(blink, "blink", 4096*2, NULL, tskIDLE_PRIORITY, NULL,0);
-    xTaskCreatePinnedToCore(bz, "bz", 4096*2, NULL, tskIDLE_PRIORITY, NULL,0);
-    xTaskCreatePinnedToCore(guiTask, "gui", 4096*2, NULL, 0, NULL, 1);
-    xTaskCreatePinnedToCore(menuLogicTask, "menuLogic", 4096*2, NULL, tskIDLE_PRIORITY, NULL,0);
-   
+    while(xSemaphoreTake(init_semaphore, portMAX_DELAY) == pdFALSE);
+    init_status++;
+    xSemaphoreGive(init_semaphore);
 }
 
 
@@ -275,11 +245,35 @@ extern void _reflow_menu(enum states* state);
 
 extern void _config_menu(enum states* state);
 
-void(*actions[3])(enum states* state)={_main_menu, _reflow_menu, _config_menu};
+extern void _sd_warn_menu(enum states* state);
+
+void(*actions[4])(enum states* state)={_main_menu, _reflow_menu, _config_menu, _sd_warn_menu};
 
 void menuLogicTask(void *pvParameter){
+    uint32_t LOCK = 1;
     printf("Menu logic task started\n");
+    while(LOCK){
+        if(xSemaphoreTake(init_semaphore, portMAX_DELAY) == pdTRUE){
+            if(init_status == 2){
+                LOCK = 0;
+            }
+        }
+        xSemaphoreGive(init_semaphore);
+    }
     enum states state = main_menu;
+    switch (init_state){
+        case sd_found:
+            state = main_menu;
+        break;
+        case sd_not_found:
+            state = sd_warn_menu;
+        break;
+        case other_error:
+            break;
+    default:
+        break;
+    }
+    
     while(1){
         actions[state](&state);
         
@@ -288,10 +282,7 @@ void menuLogicTask(void *pvParameter){
 }
 
 static void guiTask(void *pvParameter) {
-
     (void) pvParameter;
-    
-
     lv_init();
 
     /* Initialize SPI or I2C bus used by the drivers */
@@ -344,9 +335,6 @@ static void guiTask(void *pvParameter) {
     disp_drv.buffer = &disp_buf;
     lv_disp_drv_register(&disp_drv);
 
-
-
-
     lv_indev_drv_t indev_drv;
     lv_indev_drv_init(&indev_drv);     
     indev_drv.type = LV_INDEV_TYPE_KEYPAD;
@@ -363,14 +351,13 @@ static void guiTask(void *pvParameter) {
     ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
     ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, LV_TICK_PERIOD_MS * 1000));
 
-    
-
 
     init_styles();
-    LVGL_SETUP_COMPLETE = 1;
-     
+    while(xSemaphoreTake(init_semaphore, portMAX_DELAY) == pdFALSE);
+    init_status++;
+    xSemaphoreGive(init_semaphore);
 
-    //vTaskDelay(pdMS_TO_TICKS(1000));
+
     while (1) {
         /* Delay 1 tick (assumes FreeRTOS tick is 10ms */
         vTaskDelay(pdMS_TO_TICKS(10));
@@ -396,24 +383,3 @@ static void lv_tick_task(void *arg) {
     lv_tick_inc(LV_TICK_PERIOD_MS);
 }
 
-static void blink(void *pvParameter){
-    while(1){
-        //printf("TOGGLE\n");
-        gpio_set_level(STATUS_PIN, 1);
-        vTaskDelay(pdMS_TO_TICKS(100));
-        gpio_set_level(STATUS_PIN, 0);
-        vTaskDelay(pdMS_TO_TICKS(100));
-    }
-    vTaskDelete(NULL);
-}
-
-static void bz(void *pvParameter){
-    while(1){
-        //printf("TOGGLE\n");
-        gpio_set_level(BUZZER_PIN, 1);
-        vTaskDelay(pdMS_TO_TICKS(10));
-        gpio_set_level(BUZZER_PIN, 0);
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
-    vTaskDelete(NULL);
-}

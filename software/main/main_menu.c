@@ -4,8 +4,7 @@ void _main_menu(enum states* state){
     volatile uint8_t LOCK = 1;
     lv_indev_data_t button_data;
 
-    //wait for LVGL setup to finish
-    while(LVGL_SETUP_COMPLETE == 0);
+
 
     //setup the screen
     GUI_SEMAPHORE_WAIT
@@ -20,7 +19,7 @@ void _main_menu(enum states* state){
     //main_menu_item1
     lv_obj_t * main_menu_item1 = lv_obj_create(canvas, NULL);
     lv_obj_add_style(main_menu_item1, LV_OBJ_PART_MAIN, &style_menu_item);
-    lv_obj_set_size(main_menu_item1, 140, 110);
+    lv_obj_set_size(main_menu_item1, 140, 170);
     lv_obj_set_pos(main_menu_item1, 12, 12);
 
     lv_obj_t * main_menu_item1_title_bg = lv_obj_create(main_menu_item1, NULL);
@@ -39,7 +38,10 @@ void _main_menu(enum states* state){
     lv_obj_add_style(main_menu_item1_content, LV_OBJ_PART_MAIN, &style_menu_item_content);
     lv_label_set_long_mode(main_menu_item1_content, LV_LABEL_LONG_BREAK);
     lv_label_set_align(main_menu_item1_content, LV_LABEL_ALIGN_LEFT);
-    lv_label_set_text(main_menu_item1_content, profiles[profile_selected].label);
+    if(profiles != NULL){
+        lv_label_set_text(main_menu_item1_content, profiles[profile_selected].label);
+    }
+    
     lv_obj_set_size(main_menu_item1_content, lv_obj_get_width(main_menu_item1)-(7*2), lv_obj_get_height(main_menu_item1)-27);
     lv_obj_set_pos(main_menu_item1_content, 7, 27);
 

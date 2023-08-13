@@ -24,6 +24,7 @@
 #include "esp_timer.h"
 #include "esp_vfs_fat.h"
 #include "sdmmc_cmd.h"
+#include "jsmn.h"
 
 
 
@@ -58,7 +59,7 @@
 
 
 
-enum states{main_menu, reflow_menu, select_menu} state;
+enum states{main_menu, reflow_menu, select_menu, sd_warn_menu} state;
 
 
 
@@ -66,23 +67,23 @@ SemaphoreHandle_t xGuiSemaphore;
 
 extern lv_indev_t * my_indev ;
 
-extern volatile uint32_t LVGL_SETUP_COMPLETE;
+
 
 extern volatile uint32_t MENUCHANGED_DISABLEBUTTONS;
 
+
+enum reflow_states{preheat = 0, soak = 1, reflow_ramp = 2, reflow = 3, cooldown  = 4 };
+extern enum reflow_states reflow_state;
 struct reflow_phase{
     uint16_t start_temp;
     uint16_t finish_temp;
     uint32_t time;
 };
 struct reflow_profile{
-    struct reflow_phase preheat;
-    struct reflow_phase soak;
-    struct reflow_phase reflow_ramp;;
-    struct reflow_phase reflow;
-    struct reflow_phase cooldown;
+    struct reflow_phase phase[5];
+    
   
-    char label[55];
+    char label[60];
 };
 
 extern struct reflow_profile * profiles;
@@ -130,12 +131,19 @@ extern volatile struct reflow_params *reflow_selected_params;
 #define CONFIG_LIST_SIZE 6
 extern struct selection *config_list;
 
-extern void init_data();
+extern esp_err_t init_data();
+extern esp_err_t init_sdcard_data();
+extern esp_err_t init_data_generic();
+
 
 extern float current_temp;
 extern float target_temp;
 extern uint32_t total_time_ms;
 extern uint32_t elapsed_time_ms;
+
+
+
+
 
 
 #endif
