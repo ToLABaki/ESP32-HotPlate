@@ -40,6 +40,7 @@ void _main_menu(enum states* state){
     lv_label_set_align(main_menu_item1_content, LV_LABEL_ALIGN_LEFT);
     if(profiles != NULL){
         lv_label_set_text(main_menu_item1_content, profiles[profile_selected].label);
+        printf("PROFILE SELECTED %s", reflow_selected_params->profile->label);
     }
     
     lv_obj_set_size(main_menu_item1_content, lv_obj_get_width(main_menu_item1)-(7*2), lv_obj_get_height(main_menu_item1)-27);

@@ -335,7 +335,7 @@ esp_err_t init_data(){
     reflow_selected_params->fans = 4;
     reflow_selected_params->function = 4;
     reflow_selected_params->heat = 4;
-    reflow_selected_params->profile = NULL;
+    reflow_selected_params->profile = &profiles[profile_selected];
     reflow_selected_params->sensor = 4;
     return ESP_OK;
 }

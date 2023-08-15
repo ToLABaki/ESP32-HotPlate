@@ -171,6 +171,7 @@ void _config_menu(enum states* state){
                                 case (1):
                                     printf("Profile\n");
                                     reflow_selected_params->profile = (struct reflow_profile*)config_list[1].items_array[config_list[1].selected_index].data;
+                                    profile_selected = config_list[1].selected_index;
                                     break;
                                 case (2):
                                     printf("Sensor\n");
