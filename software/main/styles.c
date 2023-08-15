@@ -19,6 +19,8 @@ lv_style_t style_reflow_top_bar_content;
 lv_style_t style_reflow_chart_temp_line;
 lv_style_t style_reflow_finished_window;
 lv_style_t style_reflow_error_window;
+lv_style_t style_sd_warn_menu_image;
+lv_style_t style_sd_warn_menu_text;
 
 extern lv_font_t inter_extra_bold_20;
 extern lv_font_t inter_medium_18;
@@ -219,6 +221,17 @@ void init_styles(){
     lv_style_set_text_color(&style_reflow_finished_window, LV_STATE_DEFAULT, LV_COLOR_WHITE);
     lv_style_set_text_font(&style_reflow_finished_window, LV_STATE_DEFAULT, &inter_extra_bold_20);
     lv_style_set_radius(&style_reflow_finished_window, LV_STATE_DEFAULT, 10);
+
+
+    //sd_warn_menu_image
+    lv_style_init(&style_sd_warn_menu_image);
+    lv_style_set_image_recolor_opa(&style_sd_warn_menu_image, LV_STATE_DEFAULT, 0xFF);
+    lv_style_set_image_recolor(&style_sd_warn_menu_image, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+
+    //sd_warn_menu_text
+    lv_style_init(&style_sd_warn_menu_text);
+    lv_style_set_text_color(&style_sd_warn_menu_text, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+    lv_style_set_text_font(&style_sd_warn_menu_text, LV_STATE_DEFAULT, &inter_extra_bold_20);
 
 }
 

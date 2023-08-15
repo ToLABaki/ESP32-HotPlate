@@ -1,6 +1,8 @@
 #include "sd_warn_menu.h"
 
 
+LV_IMG_DECLARE(warning);
+
 void _sd_warn_menu(enum states* state){
     volatile uint8_t LOCK = 1;
     lv_indev_data_t button_data;
@@ -12,41 +14,31 @@ void _sd_warn_menu(enum states* state){
 
 
     lv_obj_t * canvas = lv_obj_create(lv_scr_act(), NULL);
+    
     lv_obj_add_style(canvas, LV_OBJ_PART_MAIN,&style_no_borders);
-    lv_obj_set_style_local_bg_color(canvas, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+    lv_obj_set_style_local_bg_color(canvas, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
     lv_obj_set_size(canvas, 320, 240);
 
 
+    
+
+
     //main_menu_item1
-    lv_obj_t * main_menu_item1 = lv_obj_create(canvas, NULL);
-    lv_obj_add_style(main_menu_item1, LV_OBJ_PART_MAIN, &style_menu_item);
-    lv_obj_set_size(main_menu_item1, 140, 170);
-    lv_obj_set_pos(main_menu_item1, 12, 12);
-
-    lv_obj_t * main_menu_item1_title_bg = lv_obj_create(main_menu_item1, NULL);
-    lv_obj_add_style(main_menu_item1_title_bg, LV_OBJ_PART_MAIN, &style_menu_item_title_bg);
-    lv_obj_set_size(main_menu_item1_title_bg, lv_obj_get_width(lv_obj_get_parent(main_menu_item1_title_bg)), 25);
-    lv_obj_set_pos(main_menu_item1_title_bg, 0, 0);
-
-    lv_obj_t * main_menu_item1_title = lv_label_create(main_menu_item1_title_bg, NULL);
-    lv_obj_add_style(main_menu_item1_title, LV_OBJ_PART_MAIN, &style_menu_item_title);
-    lv_obj_set_size(main_menu_item1_title, lv_obj_get_width(main_menu_item1_title_bg), lv_obj_get_height(main_menu_item1_title_bg));
-    lv_obj_align(main_menu_item1_title, NULL, LV_ALIGN_IN_LEFT_MID, 7,0);
-    lv_label_set_text(main_menu_item1_title, "Profile");
-    lv_label_set_align(main_menu_item1_title, LV_LABEL_ALIGN_LEFT);
-
-    lv_obj_t * main_menu_item1_content = lv_label_create(main_menu_item1, NULL);
-    lv_obj_add_style(main_menu_item1_content, LV_OBJ_PART_MAIN, &style_menu_item_content);
-    lv_label_set_long_mode(main_menu_item1_content, LV_LABEL_LONG_BREAK);
-    lv_label_set_align(main_menu_item1_content, LV_LABEL_ALIGN_LEFT);
-    if(profiles != NULL){
-        lv_label_set_text(main_menu_item1_content, profiles[profile_selected].label);
-    }
     
-    lv_obj_set_size(main_menu_item1_content, lv_obj_get_width(main_menu_item1)-(7*2), lv_obj_get_height(main_menu_item1)-27);
-    lv_obj_set_pos(main_menu_item1_content, 7, 27);
 
     
+    lv_obj_t * img1 = lv_img_create(canvas, NULL);
+    lv_img_set_src(img1, &warning);
+    lv_obj_align(img1, NULL, LV_ALIGN_CENTER, 0, -20);
+    lv_obj_add_style(img1, LV_IMG_PART_MAIN, &style_sd_warn_menu_image);
+   
+        
+    lv_obj_t * text = lv_label_create(canvas, NULL);
+    lv_obj_add_style(text, LV_IMG_PART_MAIN, &style_sd_warn_menu_text);
+    lv_label_set_text(text, "No SD CARD detected!\nDefaults will be loaded");
+    lv_label_set_align(text, LV_LABEL_ALIGN_CENTER);
+    lv_obj_align(text, img1, LV_ALIGN_OUT_BOTTOM_MID, 0, 20);
+  
 
     
 
@@ -62,7 +54,7 @@ void _sd_warn_menu(enum states* state){
     while(LOCK == 1){
         
         GUI_SEMAPHORE_WAIT
-        printf("SDWARN done\n");
+        
         //get the buttons
         _lv_indev_read(my_indev, &button_data);
         xSemaphoreGive(xGuiSemaphore);

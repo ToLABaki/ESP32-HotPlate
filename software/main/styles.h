@@ -41,6 +41,8 @@ extern lv_style_t style_reflow_top_bar_content;
 extern lv_style_t style_reflow_chart_temp_line;
 extern lv_style_t style_reflow_finished_window;
 extern lv_style_t style_reflow_error_window;
+extern lv_style_t style_sd_warn_menu_image;
+extern lv_style_t style_sd_warn_menu_text;
 
 
 

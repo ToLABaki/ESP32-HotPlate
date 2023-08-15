@@ -175,7 +175,7 @@ esp_err_t spi_init(){
     esp_err_t ret = ESP_OK;
     ret = spi_bus_initialize(HSPI_HOST, &buscfg, SPI_DMA_CH2);
     if(ret != ESP_OK){
-        printf("SPI ERR\n");
+        printf("SPI INT ERR\n");
     }
     return ret;
 }
@@ -187,7 +187,7 @@ esp_err_t spi_reinit(){
     
     ret = spi_bus_initialize(HSPI_HOST, &buscfg, SPI_DMA_DISABLED);
     if(ret != ESP_OK){
-        printf("SPI ERR\n");
+        printf("SPI REINIT ERR\n");
         
     }
     return ret;
@@ -198,7 +198,6 @@ void app_main() {
     esp_err_t ret = ESP_OK;
     init_gpio();
     
-    spi_init();
     init_semaphore = xSemaphoreCreateMutex();
     xGuiSemaphore = xSemaphoreCreateMutex();
     xTaskCreatePinnedToCore(guiTask, "gui", 4096*2, NULL, 0, NULL, 1);
@@ -225,7 +224,7 @@ void app_main() {
         printf("SD NOT FOUND\n");
     }
     
-
+    printf("REINIT SPI\n");
     spi_reinit();
     adc081s_init();
     while(xSemaphoreTake(init_semaphore, portMAX_DELAY) == pdFALSE);
@@ -250,7 +249,7 @@ extern void _sd_warn_menu(enum states* state);
 void(*actions[4])(enum states* state)={_main_menu, _reflow_menu, _config_menu, _sd_warn_menu};
 
 void menuLogicTask(void *pvParameter){
-    uint32_t LOCK = 1;
+    volatile uint32_t LOCK = 1;
     printf("Menu logic task started\n");
     while(LOCK){
         if(xSemaphoreTake(init_semaphore, portMAX_DELAY) == pdTRUE){
@@ -273,7 +272,7 @@ void menuLogicTask(void *pvParameter){
     default:
         break;
     }
-    
+    printf("INIT DONE\n");
     while(1){
         actions[state](&state);
         
