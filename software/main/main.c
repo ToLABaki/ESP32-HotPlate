@@ -81,6 +81,8 @@ void init_gpio(){
     gpio_config(&io_conf_out);
 
     gpio_set_level(BUZZER_PIN, 0);
+    gpio_set_level(HEATER_PIN, 0);
+    gpio_set_level(FAN_PIN, 0);
 
     io_conf_in.intr_type = GPIO_INTR_DISABLE;
     io_conf_in.mode = GPIO_MODE_INPUT;

@@ -191,6 +191,8 @@ void timer_callback(void *param){
         xSemaphoreGive(xGuiSemaphore);
         
         printf("DONE\n");
+        gpio_set_level(HEATER_PIN, 0);
+        gpio_set_level(FAN_PIN, 0);
         update_graph_flag = 1;
         update_graph_current_temp = current_temp;
         update_graph_time_ms = elapsed_time_ms;
@@ -218,6 +220,20 @@ void timer_callback(void *param){
         if(current_temp >= 300.0){
             
         }
+
+        
+
+        if(current_temp < target_temp){
+            gpio_set_level(HEATER_PIN, 1);
+            gpio_set_level(FAN_PIN, 0);
+        }else{
+            gpio_set_level(HEATER_PIN, 0);
+            gpio_set_level(FAN_PIN, 1);
+        }
+        
+
+
+        
     }
     
     
@@ -417,6 +433,8 @@ void _reflow_menu(enum states* state){
                                 reflow_menu_state = options;
                                 break;
                             case finished:
+                                gpio_set_level(HEATER_PIN, 0);
+                                gpio_set_level(FAN_PIN, 0);
                                 finished_delete_window();
                                 *state = main_menu; 
                                 kill_timer(timer_handler);
@@ -453,6 +471,8 @@ void _reflow_menu(enum states* state){
         xSemaphoreGive(xGuiSemaphore);
         vTaskDelay(pdMS_TO_TICKS(10));
     }
+    gpio_set_level(HEATER_PIN, 0);
+    gpio_set_level(FAN_PIN, 0);
     kill_timer(timer_handler);
 
     GUI_SEMAPHORE_WAIT
