@@ -1,8 +1,8 @@
 #include "adc081s.h"
 
 
-spi_device_handle_t handle;
-
+spi_device_handle_t handle1;
+spi_device_handle_t handle2;
 
 
 spi_device_interface_config_t adc_cfg1={
@@ -29,9 +29,9 @@ spi_device_interface_config_t adc_cfg2={
     .queue_size         = 1
 };
 
-esp_err_t adc081s_init(){
+esp_err_t adc081s_init(spi_device_interface_config_t *adc_cfg , spi_device_handle_t *handle){
     esp_err_t ret = ESP_OK;
-    ret = spi_bus_add_device(HSPI_HOST, &adc_cfg1, &handle);
+    ret = spi_bus_add_device(HSPI_HOST, adc_cfg, handle);
     if(ret != ESP_OK){
         printf("SPI ERR\n");
         return ret;
@@ -41,7 +41,7 @@ esp_err_t adc081s_init(){
 }
 
 
-esp_err_t adc081s_get_val(uint16_t *val){
+esp_err_t adc081s_get_val(spi_device_handle_t *handle, uint16_t *val){
     uint8_t receive_data[2];
     spi_transaction_t t= {
         .tx_buffer = NULL,
@@ -49,20 +49,41 @@ esp_err_t adc081s_get_val(uint16_t *val){
         .length = 2*8,
         .rxlength = 2*8
     };
-    if(spi_device_transmit(handle, &t) != ESP_OK){
+    if(spi_device_transmit(*handle, &t) != ESP_OK){
         printf("SPI ERR\n");
         return ESP_FAIL;
     }
-    
-
     //change the bit shift values if a genuine part is used, according to the datasheet
     *val = (receive_data[0]<<4) | (receive_data[1]>>4);
-
-    
-
     return ESP_OK;
 }
 
 uint16_t adc081s_val_to_mv(uint16_t val){
     return ((float)((float)((float)val*3.3))/255)*1000;
+}
+
+//returns:
+//0 = OK
+//1 = THERMISTOR ERROR
+//2 = ADC ERROR
+//3 = SPI ERROR
+uint32_t adc081s_test(spi_device_handle_t *handle){
+    uint8_t receive_data[2];
+    spi_transaction_t t= {
+        .tx_buffer = NULL,
+        .rx_buffer = receive_data,
+        .length = 2*8,
+        .rxlength = 2*8
+    };
+    if(spi_device_transmit(*handle, &t) != ESP_OK){
+        return 3;
+    }
+    //change the bit shift values if a genuine part is used, according to the datasheet
+    uint32_t val = (receive_data[0]<<4) | (receive_data[1]>>4);
+    if(val == 255){
+        return 1;
+    }else if(val == 4095){
+        return 2;
+    }
+    return 0;
 }

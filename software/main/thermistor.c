@@ -100,19 +100,17 @@ float mv_to_temp(uint32_t mv, struct mv_to_temp *table, uint32_t table_size){
     high_cell = &table[i];
 
     float res = ( (low_cell->temp)*(high_cell->ratio - ratio) + (high_cell->temp)*(ratio - low_cell->ratio) )/(high_cell->ratio - low_cell->ratio);
-    
-    //printf("RES:%f LOW:%f  HIGH:%f RATIO:%f\n", res, low_cell->ratio, high_cell->ratio, ratio);
 
     return res;
-
 }
+
+
 
 float mv_to_temp_EPCOS_100K_B57560G104F(uint32_t mv){
     return mv_to_temp(mv, EPCOS_100K_B57560G104F, sizeof(EPCOS_100K_B57560G104F)/sizeof(struct mv_to_temp));
 }
 
 
-//float thermistor_
 
 
 

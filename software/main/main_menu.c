@@ -65,14 +65,14 @@ void _main_menu(enum states* state){
     lv_obj_add_style(main_menu_item2_title, LV_OBJ_PART_MAIN, &style_menu_item_title);
     lv_obj_set_size(main_menu_item2_title, lv_obj_get_width(main_menu_item2_title_bg), lv_obj_get_height(main_menu_item2_title_bg));
     lv_obj_align(main_menu_item2_title, NULL, LV_ALIGN_IN_LEFT_MID, 7,0);
-    lv_label_set_text(main_menu_item2_title, "Plate");
+    lv_label_set_text(main_menu_item2_title, "ADC 1");
     lv_label_set_align(main_menu_item2_title, LV_LABEL_ALIGN_LEFT);
 
     lv_obj_t * main_menu_item2_content = lv_label_create(main_menu_item2, NULL);
     lv_obj_add_style(main_menu_item2_content, LV_OBJ_PART_MAIN, &style_menu_item_content);
     lv_label_set_long_mode(main_menu_item2_content, LV_LABEL_LONG_BREAK);
     lv_label_set_align(main_menu_item2_content, LV_LABEL_ALIGN_LEFT);
-    lv_label_set_text(main_menu_item2_content, "245°C");
+    lv_label_set_text(main_menu_item2_content, "-----");
     lv_obj_set_size(main_menu_item2_content, lv_obj_get_width(main_menu_item2)-(7*2), lv_obj_get_height(main_menu_item2)-27);
     lv_obj_set_pos(main_menu_item2_content, 7, 27);
 
@@ -95,7 +95,7 @@ void _main_menu(enum states* state){
     lv_obj_add_style(main_menu_item3_title, LV_OBJ_PART_MAIN, &style_menu_item_title);
     lv_obj_set_size(main_menu_item3_title, lv_obj_get_width(main_menu_item2_title_bg), lv_obj_get_height(main_menu_item3_title_bg));
     lv_obj_align(main_menu_item3_title, NULL, LV_ALIGN_IN_LEFT_MID, 7,0);
-    lv_label_set_text(main_menu_item3_title, "External");
+    lv_label_set_text(main_menu_item3_title, "ADC 2");
     lv_label_set_align(main_menu_item3_title, LV_LABEL_ALIGN_RIGHT);
 
     lv_obj_t * main_menu_item3_content = lv_label_create(main_menu_item3, NULL);
@@ -131,31 +131,50 @@ void _main_menu(enum states* state){
     printf("Menu done\n");
 
     uint16_t temp_val = 0;
-    char string_buffer[20];
+    char string_buffer1[20];
+    char string_buffer2[20];
 
     while(LOCK == 1){
-        GUI_SEMAPHORE_WAIT
-        //get the buttons
-        _lv_indev_read(my_indev, &button_data);
-    
 
-       
-        
-        if(adc081s_get_val(&temp_val) == ESP_OK){
-            if(temp_val == 0xFF){
+
+        if(adc081s_get_val(&handle1, &temp_val) == ESP_OK){
+            if(temp_val == 4095){
+                sprintf(string_buffer1, "ADC error");
+            }else if(temp_val == 255){
+                sprintf(string_buffer1, "Sensor error");
+            }else{
+                sprintf(string_buffer1, "%.1f °c",  mv_to_temp_EPCOS_100K_B57560G104F(adc081s_val_to_mv(temp_val)));
             }
-            sprintf(string_buffer, "%.1f °c",  mv_to_temp_EPCOS_100K_B57560G104F(adc081s_val_to_mv(temp_val)));
-            lv_label_set_text(main_menu_item2_content, string_buffer);
-                //printf("%s\n",string_buffer );
         }else{
-            sprintf(string_buffer, "ADC ERROR");
+            sprintf(string_buffer1, "SPI error");
         }
         
-      
 
-        
+
+        if(adc081s_get_val(&handle2, &temp_val) == ESP_OK){
+            //printf("2 %d\n\n", temp_val);
+            if(temp_val == 4095){
+                sprintf(string_buffer2, "ADC error");
+            }else if(temp_val == 255){
+                sprintf(string_buffer2, "Sensor error");
+            }else{
+                sprintf(string_buffer2, "%.1f °c",  mv_to_temp_EPCOS_100K_B57560G104F(adc081s_val_to_mv(temp_val)));
+            }
+        }else{
+            sprintf(string_buffer2, "SPI error");
+        }
+
+
+
+        GUI_SEMAPHORE_WAIT
+        _lv_indev_read(my_indev, &button_data);
+        lv_label_set_text(main_menu_item2_content, string_buffer1);
+        lv_label_set_text(main_menu_item3_content, string_buffer2);
         xSemaphoreGive(xGuiSemaphore);
         
+        
+        
+    
         if(button_data.state == LV_INDEV_STATE_PR){
             
            gpio_set_level(STATUS_PIN, 1); 

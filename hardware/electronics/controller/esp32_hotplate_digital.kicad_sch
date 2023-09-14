@@ -4144,6 +4144,31 @@
     )
   )
 
+  (symbol (lib_id "power:+3.3V") (at 148.59 150.495 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid 126c4420-e9f4-4d79-a3fb-dc49f8b4fb74)
+    (property "Reference" "#PWR011" (at 148.59 154.305 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Value" "+3.3V" (at 152.4 148.59 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "" (at 148.59 150.495 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "" (at 148.59 150.495 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid 3cb59b48-3006-48d3-9d0c-436ddb1764bb))
+    (instances
+      (project "esp32_hotplate_digital"
+        (path "/9f056549-b338-4bd0-9690-14155344f3fa"
+          (reference "#PWR011") (unit 1)
+        )
+      )
+    )
+  )
+
   (symbol (lib_id "power:+5V") (at 83.82 79.375 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 12d9ecad-c3a6-48a3-9c02-db359d492cab)
@@ -5246,6 +5271,31 @@
     )
   )
 
+  (symbol (lib_id "power:GND") (at 148.59 155.575 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid 526625c7-d294-42e3-81df-2ca1cfce2e3d)
+    (property "Reference" "#PWR012" (at 148.59 161.925 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Value" "GND" (at 152.4 157.48 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "" (at 148.59 155.575 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "" (at 148.59 155.575 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid eeef78ba-0255-4532-af07-28a4318ce110))
+    (instances
+      (project "esp32_hotplate_digital"
+        (path "/9f056549-b338-4bd0-9690-14155344f3fa"
+          (reference "#PWR012") (unit 1)
+        )
+      )
+    )
+  )
+
   (symbol (lib_id "power:+3.3V") (at 36.83 24.13 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 540b6f68-5300-4038-9165-0aa4355a00cc)
@@ -5957,6 +6007,37 @@
       (project "esp32_hotplate_digital"
         (path "/9f056549-b338-4bd0-9690-14155344f3fa"
           (reference "R7") (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol (lib_id "Device:C_Small") (at 148.59 153.035 0) (mirror y) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid 753fc04d-c081-4420-a08c-b2b082af0e51)
+    (property "Reference" "C22" (at 150.495 152.4 0)
+      (effects (font (size 1.27 1.27)) (justify right))
+    )
+    (property "Value" "0.1uf" (at 150.495 154.305 0)
+      (effects (font (size 1.27 1.27)) (justify right))
+    )
+    (property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder" (at 148.59 153.035 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "~" (at 148.59 153.035 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid 8782e210-0ee2-453c-8554-bb1b222373ac))
+    (pin "2" (uuid 0aebce82-d411-47ff-b97c-ae43778e9c87))
+    (instances
+      (project "esp32_hotplate_digital"
+        (path "/9f056549-b338-4bd0-9690-14155344f3fa"
+          (reference "C22") (unit 1)
+        )
+      )
+      (project "ssd2828_board"
+        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+          (reference "C1") (unit 1)
         )
       )
     )

@@ -128,7 +128,7 @@ void update_graph(lv_obj_t * line){
         tracking_line_points[current_pixel].x = current_pixel;
         tracking_line_points[current_pixel].y = update_graph_current_temp * scaler_y;
         lv_line_set_points(line, tracking_line_points, current_pixel);
-        printf("i: %d %d %d %d\n",i ,current_pixel, tracking_line_points[current_pixel].x , tracking_line_points[current_pixel].y);
+        //printf("i: %d %d %d %d\n",i ,current_pixel, tracking_line_points[current_pixel].x , tracking_line_points[current_pixel].y);
 
         prev_pixel = current_pixel;
     }
@@ -201,7 +201,7 @@ void timer_callback(void *param){
         //reflow ongoing
         elapsed_time_ms = elapsed_time_ms + TIMER_CALLBACK_PERIOD_MS;
         target_temp = calculate_target_temp(elapsed_time_ms, reflow_selected_params->profile);
-        if(adc081s_get_val(&tmp) == ESP_OK){
+        if(adc081s_get_val(&handle1, &tmp) == ESP_OK){
 
         }
         

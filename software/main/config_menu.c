@@ -81,15 +81,14 @@ void draw_main_list(){
 void _config_menu(enum states* state){
     volatile uint8_t LOCK = 1;
     lv_indev_data_t button_data;
-
-   
-
+    uint32_t ret;
     //setup the screen
     GUI_SEMAPHORE_WAIT
 
     reflow_selected_params->function = config_list[0].items_array[config_list[0].selected_index].value;
     reflow_selected_params->profile = (struct reflow_profile*)config_list[1].items_array[config_list[1].selected_index].data;
     reflow_selected_params->sensor = config_list[2].items_array[config_list[2].selected_index].value;
+    reflow_selected_params->sensor_handle = handle1;
     reflow_selected_params->fans = config_list[3].items_array[config_list[3].selected_index].value;
 
 
@@ -148,7 +147,31 @@ void _config_menu(enum states* state){
                             }
                             switch(main_config_list_selection_index){
                                 case (CONFIG_LIST_SIZE-2):
-                                    *state = reflow_menu;
+                                    if(reflow_selected_params->function == 0){
+                                        *state = reflow_menu;
+                                    }else{
+                                        *state = heat_menu;
+                                    }
+                                    //sanity check before starting profile
+                                    
+                                    ret = adc081s_test(&(reflow_selected_params->sensor_handle));
+                                    switch(ret){
+                                        case (1):
+                                            *state = error_menu;
+                                            strcpy(global_error_str_buffer, "Selected ADC has no sensor connected");
+                                        break;
+                                        case (2):
+                                            *state = error_menu;
+                                            strcpy(global_error_str_buffer, "Error with selected ADC");
+                                        break;
+                                        case (3):
+                                            strcpy(global_error_str_buffer, "SPI bus error");
+                                            *state = error_menu;
+                                        break;
+                                        default:
+                                        break;
+                                    }
+
                                     LOCK = 0;
                                     break;
                                 case (CONFIG_LIST_SIZE-1):
@@ -165,20 +188,27 @@ void _config_menu(enum states* state){
                             lv_obj_set_state(config_list[main_config_list_selection_index].items_array[config_list[main_config_list_selection_index].selected_index].associated_button, LV_STATE_DISABLED);
                             switch(main_config_list_selection_index){
                                 case (0):
-                                    printf("Function\n");
                                     reflow_selected_params->function = config_list[0].items_array[config_list[0].selected_index].value;
                                     break;
                                 case (1):
-                                    printf("Profile\n");
                                     reflow_selected_params->profile = (struct reflow_profile*)config_list[1].items_array[config_list[1].selected_index].data;
                                     profile_selected = config_list[1].selected_index;
                                     break;
                                 case (2):
-                                    printf("Sensor\n");
                                     reflow_selected_params->sensor = config_list[2].items_array[config_list[2].selected_index].value;
+                                    switch(config_list[2].items_array[config_list[2].selected_index].value){
+                                        case (0):
+                                        reflow_selected_params->sensor_handle = handle1;
+                                        break;
+                                        case (1):
+                                        reflow_selected_params->sensor_handle = handle2;
+                                        break;
+                                        default:
+                                        reflow_selected_params->sensor_handle = handle1;
+                                        break;
+                                    }
                                     break;
                                 case (3):
-                                    printf("Fans\n");
                                     reflow_selected_params->fans = config_list[3].items_array[config_list[3].selected_index].value;
                                     break;
                                 default:
@@ -200,6 +230,7 @@ void _config_menu(enum states* state){
         xSemaphoreGive(xGuiSemaphore);
         vTaskDelay(pdMS_TO_TICKS(10));
     }
+
 
     GUI_SEMAPHORE_WAIT
     lv_obj_del(canvas);

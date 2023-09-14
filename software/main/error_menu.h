@@ -1,5 +1,5 @@
-#ifndef CONFIG_MENU_H
-#define CONFIG_MENU_H
+#ifndef ERROR_MENU_H
+#define ERROR_MENU_H
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -32,13 +32,13 @@
 
 #include "adc081s.h"
 #include "thermistor.h"
-#include "error_menu.h"
 
+extern char global_error_str_buffer[60];
 
+extern enum states error_next_state;
 
+extern void _error_menu(enum states* state);
 
-
-extern void _config_menu(enum states* state);
 
 
 #endif

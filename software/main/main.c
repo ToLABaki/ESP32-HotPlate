@@ -39,6 +39,8 @@
 #include "main_menu.h"
 #include "config_menu.h"
 #include "reflow_menu.h"
+#include "error_menu.h"
+#include "heat_menu.h"
 
 #include "adc.h"
 #include "thermistor.h"
@@ -228,7 +230,8 @@ void app_main() {
     
     printf("REINIT SPI\n");
     spi_reinit();
-    adc081s_init();
+    adc081s_init(&adc_cfg1, &handle1);
+    adc081s_init(&adc_cfg2, &handle2);
     while(xSemaphoreTake(init_semaphore, portMAX_DELAY) == pdFALSE);
     init_status++;
     xSemaphoreGive(init_semaphore);
@@ -246,9 +249,11 @@ extern void _reflow_menu(enum states* state);
 
 extern void _config_menu(enum states* state);
 
-extern void _sd_warn_menu(enum states* state);
+extern void _error_menu(enum states* state);
 
-void(*actions[4])(enum states* state)={_main_menu, _reflow_menu, _config_menu, _sd_warn_menu};
+extern void _heat_menu(enum states* state);
+
+void(*actions[4])(enum states* state)={_main_menu, _reflow_menu, _config_menu, _error_menu, _heat_menu};
 
 void menuLogicTask(void *pvParameter){
     volatile uint32_t LOCK = 1;
@@ -267,7 +272,8 @@ void menuLogicTask(void *pvParameter){
             state = main_menu;
         break;
         case sd_not_found:
-            state = sd_warn_menu;
+            strcpy(global_error_str_buffer, "No SD CARD detected!\nDefaults will be loaded");
+            state = error_menu;
         break;
         case other_error:
             break;

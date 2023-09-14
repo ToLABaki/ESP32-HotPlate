@@ -25,11 +25,19 @@
 #define ADC1_CS     16
 #define ADC2_CS     17
 
-esp_err_t adc081s_init();
+extern spi_device_interface_config_t adc_cfg1;
+extern spi_device_interface_config_t adc_cfg2;
 
-esp_err_t adc081s_get_val(uint16_t *val);
+extern spi_device_handle_t handle1;
+extern spi_device_handle_t handle2;
+
+esp_err_t adc081s_init(spi_device_interface_config_t *adc_cfg , spi_device_handle_t *handle);
+
+esp_err_t adc081s_get_val(spi_device_handle_t *handle, uint16_t *val);
 
 uint16_t adc081s_val_to_mv(uint16_t val);
+
+uint32_t adc081s_test(spi_device_handle_t *handle);
 
 
 

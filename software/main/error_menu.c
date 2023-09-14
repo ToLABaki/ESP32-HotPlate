@@ -1,13 +1,15 @@
-#include "sd_warn_menu.h"
+#include "error_menu.h"
+
+char global_error_str_buffer[60];
+
+enum states error_next_state;
 
 
 LV_IMG_DECLARE(warning);
 
-void _sd_warn_menu(enum states* state){
+void _error_menu(enum states* state){
     volatile uint8_t LOCK = 1;
     lv_indev_data_t button_data;
-
-
 
     //setup the screen
     GUI_SEMAPHORE_WAIT
@@ -18,15 +20,8 @@ void _sd_warn_menu(enum states* state){
     lv_obj_add_style(canvas, LV_OBJ_PART_MAIN,&style_no_borders);
     lv_obj_set_style_local_bg_color(canvas, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_RED);
     lv_obj_set_size(canvas, 320, 240);
-
-
-    
-
-
     //main_menu_item1
-    
 
-    
     lv_obj_t * img1 = lv_img_create(canvas, NULL);
     lv_img_set_src(img1, &warning);
     lv_obj_align(img1, NULL, LV_ALIGN_CENTER, 0, -20);
@@ -35,21 +30,11 @@ void _sd_warn_menu(enum states* state){
         
     lv_obj_t * text = lv_label_create(canvas, NULL);
     lv_obj_add_style(text, LV_IMG_PART_MAIN, &style_sd_warn_menu_text);
-    lv_label_set_text(text, "No SD CARD detected!\nDefaults will be loaded");
+    lv_label_set_text(text, global_error_str_buffer);
     lv_label_set_align(text, LV_LABEL_ALIGN_CENTER);
     lv_obj_align(text, img1, LV_ALIGN_OUT_BOTTOM_MID, 0, 20);
-  
-
-    
 
     xSemaphoreGive(xGuiSemaphore);
-
- 
-
-    
-
-    uint16_t temp_val = 0;
-    char string_buffer[20];
 
     while(LOCK == 1){
         

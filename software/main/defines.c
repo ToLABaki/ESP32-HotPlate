@@ -283,7 +283,7 @@ esp_err_t init_data(){
    
 
     strcpy(config_list[2].label, "Sensor");
-    config_list[2].selected_index = 1;
+    config_list[2].selected_index = 0;
     config_list[2].value = 2;
     config_list[2].items_array_length = 2;
     config_list[2].items_array = (struct selection_items *)malloc(sizeof(struct selection_items) * config_list[2].items_array_length);
@@ -291,11 +291,11 @@ esp_err_t init_data(){
         return ESP_FAIL;
     }
     config_list[2].items_array[0].associated_selection = &(config_list[2]);
-    strcpy(config_list[2].items_array[0].label, "Internal");
+    strcpy(config_list[2].items_array[0].label, "ADC 1");
     config_list[2].items_array[0].value = 0;
 
     config_list[2].items_array[1].associated_selection = &(config_list[2]);
-    strcpy(config_list[2].items_array[1].label, "External");
+    strcpy(config_list[2].items_array[1].label, "ADC 2");
     config_list[2].items_array[1].value = 1;
 
  

@@ -1,5 +1,6 @@
-#ifndef SD_WARN_MENU_H
-#define SD_WARN_MENU_H
+#ifndef HEAT_MENU_H
+#define HEAT_MENU_H
+
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -33,8 +34,6 @@
 #include "adc081s.h"
 #include "thermistor.h"
 
-extern void _sd_warn_menu(enum states* state);
-
-
+extern void _heat_menu(enum states* state);
 
 #endif

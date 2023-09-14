@@ -59,7 +59,7 @@
 
 
 
-enum states{main_menu, reflow_menu, select_menu, sd_warn_menu} state;
+enum states{main_menu, reflow_menu, select_menu, error_menu, heat_menu} state;
 
 
 
@@ -119,6 +119,8 @@ struct selection_items{
 struct reflow_params{
     uint32_t function;
     uint32_t sensor;
+    spi_device_handle_t sensor_handle;
+    
     uint32_t fans;
     //function == 0 REFLOW
     uint32_t heat;
